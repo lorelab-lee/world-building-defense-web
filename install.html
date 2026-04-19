@@ -17,6 +17,7 @@ body {
 	align-items: center;
 	justify-content: center;
 	padding: 24px 16px;
+	padding-bottom: 120px;
 	min-height: 100vh;
 }
 .frame {
@@ -40,62 +41,189 @@ h1 {
 	margin-bottom: 20px;
 	line-height: 1.5;
 }
-.step {
+.env-block {
 	background: rgba(92, 58, 30, 0.6);
 	border: 1px solid #8b6b3d;
 	border-radius: 8px;
-	padding: 14px 16px;
+	padding: 18px 16px;
 	margin-bottom: 10px;
 }
-.step h3 {
+.env-block h3 {
 	color: #e8c66a;
 	font-size: 14px;
-	margin-bottom: 6px;
+	margin-bottom: 10px;
 }
-.step p {
+.env-block p {
 	color: #f0e4d0;
 	font-size: 13px;
 	line-height: 1.6;
+	margin-bottom: 8px;
 }
-.step strong {
-	color: #e8c66a;
-}
-.btn {
+.env-block strong { color: #e8c66a; }
+.big-btn {
 	display: block;
 	width: 100%;
-	margin-top: 16px;
-	padding: 12px;
-	background: rgba(58, 58, 46, 0.6);
-	color: #8b8b7a;
-	border: 1px solid #5c3a1e;
-	border-radius: 8px;
-	font-size: 12px;
-	text-decoration: none;
+	margin-top: 12px;
+	padding: 16px;
+	background: #8b6b3d;
+	color: #e8c66a;
+	border: 2px solid #e8c66a;
+	border-radius: 10px;
+	font-size: 16px;
+	font-weight: bold;
 	text-align: center;
 	cursor: pointer;
 }
-.btn:active { background: #5c3a1e; color: #c4a882; }
+.big-btn:active { background: #5c3a1e; }
+.big-btn[disabled] {
+	background: #3a3a2e;
+	color: #8b8b7a;
+	border-color: #5c3a1e;
+	cursor: default;
+}
+.copy-btn {
+	display: inline-block;
+	margin-top: 8px;
+	padding: 10px 16px;
+	background: #5c3a1e;
+	color: #c4a882;
+	border: 1px solid #8b6b3d;
+	border-radius: 8px;
+	font-size: 13px;
+	cursor: pointer;
+}
+.copy-btn:active { background: #8b6b3d; color: #e8c66a; }
+.ios-arrow-bottom {
+	position: fixed;
+	bottom: 8px;
+	left: 50%;
+	transform: translateX(-50%);
+	color: #e8c66a;
+	font-size: 40px;
+	animation: bounce 1.2s infinite;
+	pointer-events: none;
+	display: none;
+}
+@keyframes bounce {
+	0%, 100% { transform: translateX(-50%) translateY(0); }
+	50% { transform: translateX(-50%) translateY(10px); }
+}
+.hint {
+	color: #c4a882;
+	font-size: 11px;
+	text-align: center;
+	margin-top: 10px;
+}
+.small { font-size: 11px; color: #c4a882; }
 </style>
 </head>
 <body>
 <div class="frame">
 	<h1>📱 앱으로 설치해주세요</h1>
-	<p class="sub">모바일 브라우저로는 주소창·시스템 UI가 게임을 가려요.<br>앱으로 설치하면 가로 전체화면으로 쾌적하게 플레이됩니다.</p>
+	<p class="sub">모바일 브라우저로는 주소창이 게임을 가려요.<br>앱으로 설치하면 전체화면으로 쾌적하게 플레이됩니다.</p>
 
-	<div class="step">
-		<h3>Android — Chrome / Samsung Internet</h3>
-		<p>브라우저 메뉴(<strong>⋮</strong>) → <strong>"앱 설치"</strong> 또는 <strong>"홈 화면에 추가"</strong></p>
+	<!-- Android (Chrome/Samsung) 자동 설치 -->
+	<div id="env-android" class="env-block" style="display:none">
+		<h3>📲 앱 설치</h3>
+		<button id="install-btn" class="big-btn" disabled>설치 준비 중...</button>
+		<p class="hint">버튼이 활성화 안 되면 브라우저 메뉴(⋮) → <strong>"앱 설치"</strong></p>
 	</div>
 
-	<div class="step">
-		<h3>iOS — Safari</h3>
-		<p>하단 <strong>공유</strong> 버튼 → <strong>"홈 화면에 추가"</strong></p>
+	<!-- iOS Safari 안내 -->
+	<div id="env-ios-safari" class="env-block" style="display:none">
+		<h3>🍎 설치 방법 (Safari)</h3>
+		<p>① 아래 <strong>공유 버튼</strong>을 눌러주세요 <span style="color:#e8c66a">👇</span></p>
+		<p>② 메뉴에서 <strong>"홈 화면에 추가"</strong> 선택</p>
+		<p>③ 홈 화면의 아이콘으로 실행</p>
 	</div>
 
-	<div class="step">
+	<!-- iOS but not Safari -->
+	<div id="env-ios-other" class="env-block" style="display:none">
+		<h3>⚠️ Safari로 열어주세요</h3>
+		<p>iOS에서는 <strong>Safari에서만</strong> 앱 설치가 가능합니다 (Apple 정책).</p>
+		<p>아래 주소를 복사한 뒤 Safari에서 열어주세요:</p>
+		<button id="copy-url-btn" class="copy-btn">📋 주소 복사</button>
+	</div>
+
+	<!-- Fallback: 알 수 없는 환경 -->
+	<div id="env-fallback" class="env-block" style="display:none">
+		<h3>수동 설치</h3>
+		<p>브라우저 메뉴에서 <strong>"앱 설치"</strong> 또는 <strong>"홈 화면에 추가"</strong>를 찾아주세요.</p>
+	</div>
+
+	<div class="env-block">
 		<h3>설치 후</h3>
-		<p>홈 화면의 <strong>월드 빌딩 디펜스</strong> 아이콘으로 실행하세요. 자동으로 가로 전체화면 진입합니다.</p>
+		<p>홈 화면의 <strong>월드 빌딩 디펜스</strong> 아이콘으로 실행하면 자동으로 가로 전체화면 진입합니다.</p>
 	</div>
 </div>
+
+<div id="ios-arrow" class="ios-arrow-bottom">⬇</div>
+
+<script>
+(function() {
+	var ua = navigator.userAgent;
+	var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+	var isIOSSafari = isIOS && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
+	var isAndroid = /Android/.test(ua);
+
+	if (isIOSSafari) {
+		document.getElementById('env-ios-safari').style.display = 'block';
+		document.getElementById('ios-arrow').style.display = 'block';
+	} else if (isIOS) {
+		document.getElementById('env-ios-other').style.display = 'block';
+	} else if (isAndroid) {
+		document.getElementById('env-android').style.display = 'block';
+	} else {
+		document.getElementById('env-fallback').style.display = 'block';
+	}
+
+	// Android: beforeinstallprompt 캡처
+	var deferredPrompt = null;
+	var installBtn = document.getElementById('install-btn');
+	window.addEventListener('beforeinstallprompt', function(e) {
+		e.preventDefault();
+		deferredPrompt = e;
+		if (installBtn) {
+			installBtn.disabled = false;
+			installBtn.textContent = '📱 앱 설치하기';
+		}
+	});
+	if (installBtn) {
+		installBtn.addEventListener('click', function() {
+			if (!deferredPrompt) return;
+			deferredPrompt.prompt();
+			deferredPrompt.userChoice.then(function(choice) {
+				deferredPrompt = null;
+				if (choice.outcome === 'accepted') {
+					installBtn.textContent = '✅ 설치 중...';
+					installBtn.disabled = true;
+				}
+			});
+		});
+	}
+
+	// 설치 완료 감지 → 바로 게임 실행
+	window.addEventListener('appinstalled', function() {
+		if (installBtn) installBtn.textContent = '✅ 설치 완료! 홈 화면에서 실행해주세요';
+	});
+
+	// iOS non-Safari: URL 복사
+	var copyBtn = document.getElementById('copy-url-btn');
+	if (copyBtn) {
+		copyBtn.addEventListener('click', function() {
+			var url = window.location.origin + window.location.pathname.replace(/install\.html$/, 'index.html');
+			if (navigator.clipboard) {
+				navigator.clipboard.writeText(url).then(function() {
+					copyBtn.textContent = '✅ 복사됨 — Safari에 붙여넣기';
+				}, function() {
+					copyBtn.textContent = '복사 실패 — ' + url;
+				});
+			} else {
+				copyBtn.textContent = url;
+			}
+		});
+	}
+})();
+</script>
 </body>
 </html>
