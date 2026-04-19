@@ -122,11 +122,38 @@ h1 {
 	<h1>📱 앱으로 설치해주세요</h1>
 	<p class="sub">모바일 브라우저로는 주소창이 게임을 가려요.<br>앱으로 설치하면 전체화면으로 쾌적하게 플레이됩니다.</p>
 
-	<!-- Android (Chrome/Samsung) 자동 설치 -->
-	<div id="env-android" class="env-block" style="display:none">
+	<!-- 자동 설치 (beforeinstallprompt 캡처 시에만 표시) -->
+	<div id="env-auto-install" class="env-block" style="display:none">
+		<h3>📲 바로 설치</h3>
+		<button id="install-btn" class="big-btn">📱 앱 설치하기</button>
+		<p class="hint">버튼을 탭하면 설치 다이얼로그가 뜹니다</p>
+	</div>
+
+	<!-- Samsung Internet 전용 가이드 -->
+	<div id="env-samsung" class="env-block" style="display:none">
+		<h3>📲 Samsung Internet 설치 방법</h3>
+		<p><strong>방법 1 (빠름):</strong></p>
+		<p>① 하단 메뉴(<strong>≡</strong>) 탭</p>
+		<p>② <strong>"추가"</strong> 아이콘 탭 (첫 줄)</p>
+		<p>③ <strong>"홈 화면에 추가"</strong> 선택</p>
+		<p style="margin-top:10px"><strong>방법 2 (위가 안 보이면):</strong></p>
+		<p>① 메뉴 → <strong>"데스크톱 사이트"</strong> 켜기</p>
+		<p>② 주소창의 <strong>⬇</strong> 아이콘 탭 → <strong>"설치"</strong></p>
+	</div>
+
+	<!-- Chrome Android 가이드 -->
+	<div id="env-chrome" class="env-block" style="display:none">
+		<h3>📲 Chrome 설치 방법</h3>
+		<p>① 우상단 메뉴(<strong>⋮</strong>) 탭</p>
+		<p>② <strong>"앱 설치"</strong> 또는 <strong>"홈 화면에 추가"</strong> 선택</p>
+		<p>③ 설치 확인</p>
+	</div>
+
+	<!-- 일반 Android fallback (Edge, Firefox 등) -->
+	<div id="env-android-other" class="env-block" style="display:none">
 		<h3>📲 앱 설치</h3>
-		<button id="install-btn" class="big-btn" disabled>설치 준비 중...</button>
-		<p class="hint">버튼이 활성화 안 되면 브라우저 메뉴(⋮) → <strong>"앱 설치"</strong></p>
+		<p>브라우저 메뉴에서 <strong>"앱 설치"</strong> 또는 <strong>"홈 화면에 추가"</strong>를 찾아주세요.</p>
+		<p class="small">최적 경험을 위해 <strong>Chrome</strong> 또는 <strong>Samsung Internet</strong> 사용을 권장합니다.</p>
 	</div>
 
 	<!-- iOS Safari 안내 -->
@@ -165,28 +192,32 @@ h1 {
 	var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
 	var isIOSSafari = isIOS && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
 	var isAndroid = /Android/.test(ua);
+	var isSamsung = /SamsungBrowser/.test(ua);
+	var isChromeAndroid = isAndroid && /Chrome/.test(ua) && !isSamsung && !/EdgA|FxiOS|OPR|Opera/.test(ua);
 
 	if (isIOSSafari) {
 		document.getElementById('env-ios-safari').style.display = 'block';
 		document.getElementById('ios-arrow').style.display = 'block';
 	} else if (isIOS) {
 		document.getElementById('env-ios-other').style.display = 'block';
+	} else if (isSamsung) {
+		document.getElementById('env-samsung').style.display = 'block';
+	} else if (isChromeAndroid) {
+		document.getElementById('env-chrome').style.display = 'block';
 	} else if (isAndroid) {
-		document.getElementById('env-android').style.display = 'block';
+		document.getElementById('env-android-other').style.display = 'block';
 	} else {
 		document.getElementById('env-fallback').style.display = 'block';
 	}
 
-	// Android: beforeinstallprompt 캡처
+	// beforeinstallprompt 캡처 — 발생 시에만 자동 설치 블록 노출
 	var deferredPrompt = null;
+	var autoInstallBlock = document.getElementById('env-auto-install');
 	var installBtn = document.getElementById('install-btn');
 	window.addEventListener('beforeinstallprompt', function(e) {
 		e.preventDefault();
 		deferredPrompt = e;
-		if (installBtn) {
-			installBtn.disabled = false;
-			installBtn.textContent = '📱 앱 설치하기';
-		}
+		if (autoInstallBlock) autoInstallBlock.style.display = 'block';
 	});
 	if (installBtn) {
 		installBtn.addEventListener('click', function() {
