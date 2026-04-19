@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		<script>
+(function() {
+    var isStandalone = window.matchMedia("(display-mode: standalone)").matches
+                    || window.matchMedia("(display-mode: fullscreen)").matches
+                    || window.matchMedia("(display-mode: minimal-ui)").matches
+                    || window.navigator.standalone === true;
+    var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+    var bypass = new URLSearchParams(window.location.search).get("bypass") === "1";
+    if (isMobile && !isStandalone && !bypass) {
+        window.location.replace("./install.html");
+    }
+})();
+</script>
+
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, viewport-fit=cover">
 		<title>월드 빌딩 디펜스</title>
@@ -112,7 +126,7 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":50950584,"index.wasm":37695054},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":51306788,"index.wasm":37695054},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
