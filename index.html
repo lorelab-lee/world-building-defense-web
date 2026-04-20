@@ -8,10 +8,21 @@
                     || window.matchMedia("(display-mode: minimal-ui)").matches
                     || window.navigator.standalone === true;
     var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-    var bypass = new URLSearchParams(window.location.search).get("bypass") === "1";
-    if (isMobile && !isStandalone && !bypass) {
-        window.location.replace("./install.html");
-    }
+    var dismissed = localStorage.getItem("pwa_banner_dismissed") === "1";
+    if (!isMobile || isStandalone || dismissed) return;
+    document.addEventListener("DOMContentLoaded", function() {
+        var bar = document.createElement("div");
+        bar.id = "pwa_banner";
+        bar.style.cssText = "position:fixed;left:0;right:0;bottom:0;padding:10px 14px;background:#2a1c14;color:#f5d98a;font:14px sans-serif;border-top:2px solid #8b6b3d;z-index:9999;display:flex;align-items:center;gap:10px;";
+        bar.innerHTML = '<span style="flex:1">📲 홈 화면에 추가하면 풀스크린으로 플레이할 수 있어요</span>'
+            + '<a href="./install.html" style="color:#f5d98a;text-decoration:underline">설치 안내</a>'
+            + '<button id="pwa_banner_close" style="background:transparent;color:#c4a882;border:1px solid #8b6b3d;border-radius:4px;padding:4px 10px;cursor:pointer">닫기</button>';
+        document.body.appendChild(bar);
+        document.getElementById("pwa_banner_close").onclick = function() {
+            localStorage.setItem("pwa_banner_dismissed", "1");
+            bar.remove();
+        };
+    });
 })();
 </script>
 
@@ -126,7 +137,7 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":75608296,"index.wasm":37695054},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":75615076,"index.wasm":37695054},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
