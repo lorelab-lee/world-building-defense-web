@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1776703392|2204234';
+const CACHE_VERSION = '1776703541|2076958';
 /** @type {string} */
 const CACHE_PREFIX = '월드 빌딩 디펜스-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
