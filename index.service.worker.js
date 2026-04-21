@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1776814403|2221908';
+const CACHE_VERSION = '1776815476|2459985';
 /** @type {string} */
 const CACHE_PREFIX = '월드 빌딩 디펜스-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
 			// Remove old caches.
 			return Promise.all(keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME).map((key) => caches.delete(key)));
 		}
-	).then(() => self.clients.claim()).then(() => self.clients.matchAll({type: 'window'})).then((cs) => Promise.all(cs.map((c) => c.navigate(c.url).catch(() => {})))).then(function () {
+	).then(() => self.clients.claim()).then(function () {
 		// Enable navigation preload if available.
 		return ('navigationPreload' in self.registration) ? self.registration.navigationPreload.enable() : Promise.resolve();
 	}));

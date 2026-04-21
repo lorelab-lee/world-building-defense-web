@@ -59,18 +59,13 @@
         }
     }).catch(function() {});
 
-    // 2) SW 기본 경로 — 새 SW 활성화 시 자동 리로드
+    // 2) SW 업데이트 체크 — 첫 페이지 로드 시 1회만.
+    //    controllerchange 리스너 + 60초 폴링 제거: 게임 플레이 중 리로드 트리거 방지.
+    //    새 SW는 skipWaiting으로 즉시 활성화 → 다음 탭 새로고침/재방문에 새 버전 반영.
+    //    긴급 업데이트가 필요하면 version.json 체크 경로가 캐시 폭파 + 리로드로 보증.
     if (!('serviceWorker' in navigator)) return;
-    var _reloaded = false;
-    navigator.serviceWorker.addEventListener('controllerchange', function() {
-        if (_reloaded) return;
-        _reloaded = true;
-        window.location.reload();
-    });
-    // 페이지 진입 직후 및 60초마다 SW 업데이트 체크
     navigator.serviceWorker.ready.then(function(reg) {
         reg.update();
-        setInterval(function() { reg.update(); }, 60000);
     });
 })();
 </script>
