@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<title>캐시 초기화 · 월드 빌딩 디펜스</title>
+	<style>
+		html, body {
+			margin: 0;
+			padding: 0;
+			background: #2a1c14;
+			color: #f0e4d0;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+			min-height: 100vh;
+			box-sizing: border-box;
+		}
+		body {
+			padding: 40px 20px;
+			text-align: center;
+		}
+		h1 {
+			color: #e8c66a;
+			font-size: 24px;
+			margin: 0 0 20px 0;
+		}
+		p {
+			line-height: 1.6;
+			color: #c4a882;
+			font-size: 15px;
+		}
+		strong {
+			color: #f0e4d0;
+		}
+		#status {
+			margin: 30px auto;
+			padding: 18px;
+			background: rgba(40, 26, 16, 0.92);
+			border: 2px solid #8b6b3d;
+			border-radius: 8px;
+			max-width: 320px;
+			text-align: left;
+			font-size: 14px;
+			white-space: pre-line;
+			line-height: 1.8;
+		}
+		button {
+			background: #5c3a1e;
+			color: #e8c66a;
+			border: 2px solid #8b6b3d;
+			padding: 14px 32px;
+			font-size: 16px;
+			font-weight: bold;
+			border-radius: 8px;
+			cursor: pointer;
+			margin-top: 10px;
+		}
+		button:hover, button:active {
+			background: #8b6b3d;
+			color: #f0e4d0;
+		}
+		.spinner {
+			display: inline-block;
+			width: 18px;
+			height: 18px;
+			border: 3px solid #8b6b3d;
+			border-top-color: #e8c66a;
+			border-radius: 50%;
+			animation: spin 0.8s linear infinite;
+			vertical-align: middle;
+			margin-right: 8px;
+		}
+		@keyframes spin {
+			to { transform: rotate(360deg); }
+		}
+	</style>
+</head>
+<body>
+	<h1>🔄 캐시 초기화</h1>
+	<p>브라우저에 저장된 오래된 게임 파일을 정리합니다.<br>
+	<strong>세이브 데이터(진행 상황·덱·업적)는 그대로 유지됩니다.</strong></p>
+	<div id="status"><span class="spinner"></span>진행 중…</div>
+	<button id="back" style="display:none">게임으로 돌아가기</button>
+
+	<script>
+		(async function() {
+			var status = document.getElementById('status');
+			var back = document.getElementById('back');
+			var steps = [];
+			try {
+				// 1) Cache Storage (SW가 캐싱한 HTML/JS/pck/wasm 등) 전부 삭제
+				if ('caches' in window) {
+					var keys = await caches.keys();
+					await Promise.all(keys.map(function(k) { return caches.delete(k); }));
+					steps.push('✓ 캐시 삭제: ' + keys.length + '개');
+				}
+				// 2) 모든 Service Worker 등록 해제
+				if ('serviceWorker' in navigator) {
+					var regs = await navigator.serviceWorker.getRegistrations();
+					await Promise.all(regs.map(function(r) { return r.unregister(); }));
+					steps.push('✓ Service Worker 해제: ' + regs.length + '개');
+				}
+				// 3) 버전 스탬프 초기화 — 다음 접속 시 새 SW 클린 설치
+				try { localStorage.removeItem('_app_version'); } catch (e) {}
+				steps.push('');
+				steps.push('✓ IndexedDB(세이브 데이터)는 유지됨');
+				status.innerHTML = steps.join('\n');
+				back.style.display = 'inline-block';
+			} catch (e) {
+				status.textContent = '❌ 오류: ' + (e && e.message ? e.message : e);
+				back.style.display = 'inline-block';
+				back.textContent = '다시 시도';
+			}
+			back.onclick = function() { location.href = './'; };
+		})();
+	</script>
+</body>
+</html>
