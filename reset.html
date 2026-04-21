@@ -110,7 +110,12 @@
 				back.style.display = 'inline-block';
 				back.textContent = '다시 시도';
 			}
-			back.onclick = function() { location.href = './'; };
+			back.onclick = function() {
+				// 캐시 버스팅 쿼리 — 브라우저 HTTP 캐시까지 우회하여 무조건 네트워크에서 fresh 로드
+				var bust = '?_cb=' + Date.now();
+				// replace로 히스토리 뒤로가기 때 reset 페이지 재진입 방지
+				location.replace('./' + bust);
+			};
 		})();
 	</script>
 </body>
