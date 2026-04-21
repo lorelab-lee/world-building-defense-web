@@ -28,6 +28,38 @@
 
 		<script>
 (function() {
+    // ─────────────────────────────────────────────────────
+    // 1) 버전 체크 세이프티넷 — version.json을 network-only로 가져와 저장된 버전과 다르면
+    //    전체 캐시/SW 폭파 후 리로드. SW navigate 메커니즘이 어떤 이유로 실패해도 이 경로가 보증.
+    var VERSION_URL = './version.json';
+    fetch(VERSION_URL + '?t=' + Date.now(), {cache: 'no-store'}).then(function(r) {
+        return r.ok ? r.json() : null;
+    }).then(function(v) {
+        if (!v || !v.version) return;
+        var stored = null;
+        try { stored = localStorage.getItem('_app_version'); } catch (e) {}
+        if (stored && stored !== v.version) {
+            var nuke = Promise.resolve();
+            if ('caches' in window) {
+                nuke = nuke.then(function() { return caches.keys(); }).then(function(keys) {
+                    return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+                });
+            }
+            if ('serviceWorker' in navigator) {
+                nuke = nuke.then(function() { return navigator.serviceWorker.getRegistrations(); }).then(function(regs) {
+                    return Promise.all(regs.map(function(r) { return r.unregister(); }));
+                });
+            }
+            nuke.then(function() {
+                try { localStorage.setItem('_app_version', v.version); } catch (e) {}
+                window.location.reload();
+            });
+        } else if (!stored) {
+            try { localStorage.setItem('_app_version', v.version); } catch (e) {}
+        }
+    }).catch(function() {});
+
+    // 2) SW 기본 경로 — 새 SW 활성화 시 자동 리로드
     if (!('serviceWorker' in navigator)) return;
     var _reloaded = false;
     navigator.serviceWorker.addEventListener('controllerchange', function() {
