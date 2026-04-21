@@ -26,6 +26,23 @@
 })();
 </script>
 
+		<script>
+(function() {
+    if (!('serviceWorker' in navigator)) return;
+    var _reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+        if (_reloaded) return;
+        _reloaded = true;
+        window.location.reload();
+    });
+    // 페이지 진입 직후 및 60초마다 SW 업데이트 체크
+    navigator.serviceWorker.ready.then(function(reg) {
+        reg.update();
+        setInterval(function() { reg.update(); }, 60000);
+    });
+})();
+</script>
+
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, viewport-fit=cover">
 		<title>월드 빌딩 디펜스</title>
