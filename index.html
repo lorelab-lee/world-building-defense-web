@@ -179,15 +179,17 @@ html, body {
     background: #2a1c14;
     overflow: hidden;
 }
-/* 캔버스 가로·세로 모두 100% stretch — 화면 전체 채움.
-   720×1280(9:16) ↔ 모바일 뷰포트(약 9:20) 차이만큼 세로로 약간 늘어나지만
-   letterbox/잘림 없음. UI 약간의 종횡비 변화 수용. */
+/* 캔버스 가로·세로 100% stretch — 화면 전체 채움.
+   100vh는 URL bar 숨김 기준(large viewport)이라 URL bar 보일 때 하단 잘림.
+   100dvh = dynamic viewport: 현재 visible 영역에 맞게 동적 조정 (URL bar 토글 시 reflow).
+   canvas_resize_policy=1로 godot 내부 해상도는 720×1280 고정 → element 크기 변해도
+   WebGL context 재할당 없음 → iOS 메모리 스파이크 안전. */
 body { margin: 0; padding: 0; }
 #canvas {
     position: fixed !important;
     top: 0 !important; left: 0 !important;
     width: 100vw !important;
-    height: 100vh !important;
+    height: 100dvh !important;
     max-width: none !important;
     max-height: none !important;
 }
