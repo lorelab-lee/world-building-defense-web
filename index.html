@@ -179,15 +179,14 @@ html, body {
     background: #2a1c14;
     overflow: hidden;
 }
-/* 캔버스를 뷰포트 전체에 cover로 채움 — letterbox 제거.
-   safe-area는 게임 내부 UI가 알아서 inset 처리 (HUD margin 등). */
+/* 캔버스 세로(높이) 화면에 맞추고 가로는 비율 유지 — UI 안 잘림.
+   가로가 부족하면 좌우 letterbox(어두운 배경) 발생. cover보다 잘림 적음. */
+body { display: flex; align-items: center; justify-content: center; }
 #canvas {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
     height: 100vh !important;
-    object-fit: cover !important;
+    width: auto !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
 }
 		
 /* ── Boot loader 슬라이드 + TAP TO START ── */
