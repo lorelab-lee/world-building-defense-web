@@ -191,6 +191,35 @@ body {
     width: auto !important;
     height: auto !important;
 }
+		
+/* ── Boot loader 슬라이드 + TAP TO START ── */
+#status { background: #2a1c14; }
+#status-splash { display: none !important; }
+#boot-slides { position: absolute; inset: 0; overflow: hidden; }
+#boot-slides .bg-slide {
+	position: absolute; inset: 0;
+	background-size: cover; background-position: center;
+	opacity: 0; transition: opacity 0.6s ease;
+}
+#boot-slides .bg-slide.active { opacity: 1; }
+#boot-dim { position: absolute; inset: 0; background: rgba(0,0,0,0.35); }
+#status-progress {
+	position: absolute !important; left: 32px !important; right: 32px !important;
+	bottom: 110px !important; width: auto !important; height: 18px !important;
+	border: 2px solid #8b6b3d; border-radius: 6px; background: #1a0f0a;
+}
+#status-progress::-webkit-progress-bar { background: #1a0f0a; border-radius: 4px; }
+#status-progress::-webkit-progress-value { background: #e8c66a; border-radius: 4px; transition: width 0.2s; }
+#status-progress::-moz-progress-bar { background: #e8c66a; border-radius: 4px; }
+#tap-to-start {
+	position: absolute; left: 0; right: 0; bottom: 100px;
+	text-align: center; color: #e8c66a; font-size: 24px; font-weight: 700;
+	letter-spacing: 2px; text-shadow: 0 0 6px rgba(0,0,0,0.8);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	pointer-events: none;
+	animation: tap-blink 1.4s ease-in-out infinite;
+}
+@keyframes tap-blink { 0%, 100% { opacity: 1 } 50% { opacity: 0.35 } }
 		</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
@@ -207,14 +236,35 @@ body {
 		</noscript>
 
 		<div id="status">
-			<img id="status-splash" class="show-image--true fullsize--false use-filter--true" src="index.png" alt="">
+			<div id="boot-slides">
+				<div class="bg-slide active" style="background-image:url(loading_bg/bg_01.jpg)"></div>
+				<div class="bg-slide" style="background-image:url(loading_bg/bg_02.jpg)"></div>
+				<div class="bg-slide" style="background-image:url(loading_bg/bg_03.jpg)"></div>
+				<div class="bg-slide" style="background-image:url(loading_bg/bg_04.jpg)"></div>
+				<div class="bg-slide" style="background-image:url(loading_bg/bg_05.jpg)"></div>
+			</div>
+			<div id="boot-dim"></div>
+						<img id="status-splash" class="show-image--true fullsize--false use-filter--true" src="index.png" alt="">
 			<progress id="status-progress"></progress>
 			<div id="status-notice"></div>
 		</div>
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":1,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":99122356,"index.wasm":37695054},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
+
+	// Boot 슬라이드 cycle (2.5s 간격)
+	(function() {
+		var idx = 0;
+		var slides = document.querySelectorAll('#boot-slides .bg-slide');
+		if (slides.length < 2) return;
+		setInterval(function() {
+			slides[idx].classList.remove('active');
+			idx = (idx + 1) % slides.length;
+			slides[idx].classList.add('active');
+		}, 2500);
+	})();
+
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":1,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":99115836,"index.wasm":37695054},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -313,7 +363,21 @@ const engine = new Engine(GODOT_CONFIG);
 				}
 			},
 		}).then(() => {
-			setStatusMode('hidden');
+			// 게임 로드 끝 — TAP TO START 표시 후 사용자 탭 대기
+			statusProgress.style.display = 'none';
+			var tap = document.createElement('div');
+			tap.id = 'tap-to-start';
+			tap.textContent = 'TAP ANYWHERE TO START';
+			statusOverlay.appendChild(tap);
+			statusOverlay.style.cursor = 'pointer';
+			var startGame = function(e) {
+				if (e) e.preventDefault();
+				statusOverlay.removeEventListener('click', startGame);
+				statusOverlay.removeEventListener('touchstart', startGame);
+				setStatusMode('hidden');
+			};
+			statusOverlay.addEventListener('click', startGame);
+			statusOverlay.addEventListener('touchstart', startGame, { passive: false });
 		}, displayFailureNotice);
 	}
 }());
